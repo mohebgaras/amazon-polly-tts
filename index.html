@@ -4,9 +4,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Amazon Polly TTS</title>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.993.0.min.js"></script>
 </head>
 <body>
-    <h1>Amazon Polly TTS Website</h1>
-    <p>Congratulations! Your website is working.</p>
+    <h2>Enter Text for Speech</h2>
+    <textarea id="textInput" rows="4" cols="50"></textarea><br>
+
+    <h3>Select a Voice:</h3>
+    <select id="voiceSelect">
+        <option value="Joanna">Joanna (English, US)</option>
+        <option value="Matthew">Matthew (English, US)</option>
+        <option value="Emma">Emma (English, UK)</option>
+        <option value="Brian">Brian (English, UK)</option>
+        <option value="Aditi">Aditi (English, Indian)</option>
+        <option value="Zeina">Zeina (Arabic)</option>
+        <option value="Hans">Hans (German)</option>
+    </select><br><br>
+
+    <button onclick="convertTextToSpeech()">Speak</button>
+    <audio id="audioPlayer" controls></audio>
+
+    <script>
+        // Replace with your AWS IAM credentials
+        AWS.config.update({
+            accessKeyId: "YOUR_ACCESS_KEY",
+            secretAccessKey: "YOUR_SECRET_KEY",
+            region: "us-east-1" // Change if needed
+        });
+
+        var polly = new AWS.Polly();
+
+        function convertTextToSpeech() {
+            let text = document.getElementById("textInput").value;
+            let selectedVoice = document.getElementById("voiceSelect").value;
+
+            var params = {
+                Text: text,
+                OutputFormat: "mp3",
+                VoiceId: selectedVoice
+            };
+
+            polly.synthesizeSpeech(params, function (err, data) {
+                if (err) {
+                    console.error(err);
+                } else {
+                    let audioBlob = new Blob([data.AudioStream], { type: "audio/mp3" });
+                    let audioUrl = URL.createObjectURL(audioBlob);
+                    document.getElementById("audioPlayer").src = audioUrl;
+                }
+            });
+        }
+    </script>
 </body>
 </html>
